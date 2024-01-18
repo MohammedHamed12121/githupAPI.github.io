@@ -4,9 +4,9 @@
 - [X] each repository has its name, discription, topics
 - [X] implement paganation for serverside one
 - [X] by default show 10 repositories by page
-- [ ] user can change that number to be 100 max
-- [ ] you need to display loaders when the api is in progress
-- [ ] make a search bar to filter the repository
+- [X] user can change that number to be 100 max
+- [X] you need to display loaders when the api is in progress
+- [X] make a search bar to filter the repository
 
 
 

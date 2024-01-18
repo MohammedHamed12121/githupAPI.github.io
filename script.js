@@ -1,9 +1,20 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // const token = require('./token');
-    console.log(token)
-    const username = 'johnpapa';
-    const reposPerPage = 10;
+    let username = 'johnpapa';
+    let reposPerPage = 10;
     let currentReposPage = 1;
+
+    window.searchUsers = () => {
+        const searchInput = document.getElementById('search');
+        const searchTerm = searchInput.value.trim();
+        console.log(searchTerm)
+        if (searchTerm !== '') {
+            username = searchTerm
+            fetchGitHubUser(searchTerm);
+        } else {
+            
+            fetchGitHubUser(username);
+        }
+    };
 
     const fetchGitHubUser = async () => {
         const userUrl = `https://api.github.com/users/${username}`;
@@ -15,7 +26,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             displayUserInfo(userData);
 
-            await fetchAndDisplayRepos(username, userData.public_repos);
+            await fetchAndDisplayRepos(username);
+
+
         } catch (error) {
             console.error(`Error fetching GitHub user ${username}:`, error);
         }
@@ -36,6 +49,20 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
 
         updatePagination(userData.public_repos);
+    };
+
+    window.changeItemsPerPage = () => {
+        const itemsPerPageInput = document.getElementById('itemsPerPage');
+        // the default is 10
+        let newValue = parseInt(itemsPerPageInput.value, 10);
+        
+        // from 1 to 100 
+        newValue = Math.min(Math.max(newValue, 1), 100);
+        console.log(newValue)
+
+        reposPerPage = newValue;
+        currentReposPage = 1;
+        fetchAndDisplayRepos(username);
     };
 
     const updatePagination = (totalUsers) => {
@@ -81,9 +108,11 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
 
-    const fetchAndDisplayRepos = async (username, numOfRepos) => {
+    const fetchAndDisplayRepos = async (username) => {
         const repoUrl = `https://api.github.com/users/${username}/repos?per_page=${reposPerPage}&page=${currentReposPage}`;
         const headers = { Authorization: `Bearer ${token}` };
+
+        showLoader();
 
         try {
             const response = await fetch(repoUrl, { headers });
@@ -95,6 +124,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
+    const showLoader = () => {
+        const loaderElement = document.getElementById('loader');
+        loaderElement.style.display = 'block';
+    };
+
+    const hideLoader = () => {
+        const loaderElement = document.getElementById('loader');
+        loaderElement.style.display = 'none';
+    };
     const displayRepos = (reposData) => {
         const reposElement = document.getElementById('user-repos');
         const repoList = document.createElement('ul');
@@ -107,6 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <p><strong>topics:</strong> ${repo.topics}</p>
             `;
             repoList.appendChild(repoItem);
+            hideLoader();
         });
 
         reposElement.innerHTML = '<h2>Repositories:</h2>';

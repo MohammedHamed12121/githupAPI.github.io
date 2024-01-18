@@ -1,6 +1,6 @@
-- [X] access a specific
-- [ ] display its name, bio, location, links(ex. twitter link) display the image under it gihup link
-- [ ] finally display its repositories
+- [X] access a specific user
+- [X] display its name, bio, location, links(ex. twitter link) display the image under it gihup link
+- [X] display its repositories
 - [ ] each repository has its name, discription, topics
 - [ ] implement paganation for serverside one
 - [ ] by default show 10 repositories by page
@@ -14,3 +14,5 @@ MyAssumptions:
     - You just mension html, css, js, bs, and jquery no mension of AJAX so i didn't use it.
     - 
     
+
+Githup link : https://github.com/MohammedHamed12121/githupAPI.github.io

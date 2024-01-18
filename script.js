@@ -2,9 +2,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // const token = require('./token');
     console.log(token)
     const username = 'johnpapa';
-    const reposPerPage = 8;
-    let currentReposPage = 4;
-    let pagenationLength;
+    const reposPerPage = 10;
+    let currentReposPage = 1;
 
     const fetchGitHubUser = async () => {
         const userUrl = `https://api.github.com/users/${username}`;
@@ -85,7 +84,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const fetchAndDisplayRepos = async (username, numOfRepos) => {
         const repoUrl = `https://api.github.com/users/${username}/repos?per_page=${reposPerPage}&page=${currentReposPage}`;
         const headers = { Authorization: `Bearer ${token}` };
-        pagenationLength = numOfRepos/reposPerPage
 
         try {
             const response = await fetch(repoUrl, { headers });
@@ -103,7 +101,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         reposData.forEach((repo) => {
             const repoItem = document.createElement('li');
-            repoItem.innerHTML = `<p><strong>Repository:</strong> <a href="${repo.html_url}" target="_blank">${repo.name}</a></p>`;
+            repoItem.innerHTML = `
+                <p><strong>Repository:</strong> <a href="${repo.html_url}" target="_blank">${repo.name}</a></p>
+                <p><strong>Description:</strong> ${repo.description}</p>
+                <p><strong>topics:</strong> ${repo.topics}</p>
+            `;
             repoList.appendChild(repoItem);
         });
 
@@ -125,10 +127,6 @@ document.addEventListener('DOMContentLoaded', function () {
         currentReposPage = clickedPage;
         fetchAndDisplayRepos(username);
     };
-
-    const setCurrentReposPage = (currentPage) => {
-        currentReposPage = currentPage
-    }
 
     fetchGitHubUser();
 });

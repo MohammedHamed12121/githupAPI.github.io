@@ -1,9 +1,9 @@
 - [X] access a specific user
 - [X] display its name, bio, location, links(ex. twitter link) display the image under it gihup link
 - [X] display its repositories
-- [ ] each repository has its name, discription, topics
-- [ ] implement paganation for serverside one
-- [ ] by default show 10 repositories by page
+- [X] each repository has its name, discription, topics
+- [X] implement paganation for serverside one
+- [X] by default show 10 repositories by page
 - [ ] user can change that number to be 100 max
 - [ ] you need to display loaders when the api is in progress
 - [ ] make a search bar to filter the repository

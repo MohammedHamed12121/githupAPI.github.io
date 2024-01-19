@@ -2,24 +2,39 @@ document.addEventListener('DOMContentLoaded', function () {
     let username = 'johnpapa';
     let reposPerPage = 10;
     let currentReposPage = 1;
+    let userRepos;
 
     window.searchUsers = () => {
-        const searchInput = document.getElementById('search');
-        const searchTerm = searchInput.value.trim();
+        let searchInput = document.getElementById('search');
+        let searchTerm = searchInput.value.trim();
         console.log(searchTerm)
         if (searchTerm !== '') {
             username = searchTerm
             fetchGitHubUser(searchTerm);
         } else {
-            
+
             fetchGitHubUser(username);
         }
     };
 
+    window.searchRepositories = () => {
+        const repoSearchInput = document.getElementById('repoSearch');
+        const repoSearchTerm = repoSearchInput.value.trim();
+        console.log(repoSearchTerm)
+        if (repoSearchTerm !== '') {
+            fetchGitHubRepositories(repoSearchTerm);
+        } else {
+            fetchGitHubRepositories();
+        }
+    };
+
     const fetchGitHubUser = async () => {
+        // https://api.github.com/users/johnpapa
         const userUrl = `https://api.github.com/users/${username}`;
         const headers = { Authorization: `Bearer ${token}` };
 
+
+        showLoader();
         try {
             const response = await fetch(userUrl, { headers });
             const userData = await response.json();
@@ -37,37 +52,51 @@ document.addEventListener('DOMContentLoaded', function () {
     const displayUserInfo = (userData) => {
         const userInfoElement = document.getElementById('user-info');
 
-        const paginationElement = document.getElementById('pagination');
-
         userInfoElement.innerHTML = `
-            <img src='${userData.avatar_url}'></img>
-            <p><strong>GitHub Profile:</strong> <a href="${userData.html_url}" target="_blank">${userData.html_url}</a></p>
-            <p><strong>Name:</strong> ${userData.name}</p>
-            <p><strong>Bio:</strong> ${userData.bio}</p>
-            <p><strong>Location:</strong> ${userData.location}</p>
-            <p><strong>Public Repositories:</strong> ${userData.public_repos}</p>
+            
+                <div class='row m-5'>
+                    <div class='col-3'>
+                        <img src='${userData.avatar_url}' class="img-fluid round-image"></img>
+                        <p class='d-flex'>
+                        <span class="material-symbols-outlined pr-2"> link </span>
+                        <a href="${userData.html_url}" >
+                        
+                        ${userData.html_url}</a></p>
+                    </div>
+                    <div class='col-4'>
+                        <h3>${userData.name}</h3>
+                        <p> ${userData.bio}</p>
+                        <p class='d-flex'> <span class="material-symbols-outlined pr-2"> location_on </span> 
+                        ${userData.location}</p>
+                    </div>
+                </div>
+            
         `;
 
-        updatePagination(userData.public_repos);
+        userRepos = userData.public_repos
+        updatePagination(userRepos);
     };
 
     window.changeItemsPerPage = () => {
         const itemsPerPageInput = document.getElementById('itemsPerPage');
         // the default is 10
         let newValue = parseInt(itemsPerPageInput.value, 10);
-        
+
         // from 1 to 100 
         newValue = Math.min(Math.max(newValue, 1), 100);
-        console.log(newValue)
+        // console.log(newValue)
 
         reposPerPage = newValue;
         currentReposPage = 1;
         fetchAndDisplayRepos(username);
+        updatePagination(userRepos);
     };
 
-    const updatePagination = (totalUsers) => {
-        const totalPages = Math.ceil(totalUsers / reposPerPage);
+    const updatePagination = (totalRepos) => {
+        const totalPages = Math.ceil(totalRepos / reposPerPage);
         const paginationElement = document.getElementById('pagination');
+        console.log(`total repos: ${totalRepos}`)
+        console.log(`total repos: ${reposPerPage}`)
 
         paginationElement.innerHTML = '';
 
@@ -83,6 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
         paginationElement.appendChild(prevItem);
 
         // page items
+        console.log(`item per page ${totalPages}`)
         for (let i = 1; i <= totalPages; i++) {
             const pageItem = document.createElement('li');
             pageItem.classList.add('page-item');
@@ -109,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     const fetchAndDisplayRepos = async (username) => {
+        // https://api.github.com/users/johnpapa/repos?per_page=10&page=1
         const repoUrl = `https://api.github.com/users/${username}/repos?per_page=${reposPerPage}&page=${currentReposPage}`;
         const headers = { Authorization: `Bearer ${token}` };
 
@@ -117,12 +148,30 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const response = await fetch(repoUrl, { headers });
             const reposData = await response.json();
-
+            console.log(reposData)
             displayRepos(reposData);
+            updatePagination(userRepos)
         } catch (error) {
             console.error(`Error fetching repositories for ${username}:`, error);
         }
     };
+
+    const fetchGitHubRepositories = async (searchTerm = '') => {
+        // https://api.github.com/search/repositories?q=user:exampleuser+example
+        const url = `https://api.github.com/search/repositories?q=user:${username}+${searchTerm}`;
+        const headers = { Authorization: `Bearer ${token}` };
+
+        try {
+            const response = await fetch(url, { headers });
+            const repositoriesData = await response.json();
+            console.log(repositoriesData.items)
+            displayRepos(repositoriesData.items);
+            updatePagination(userRepos);
+        } catch (error) {
+            console.error('Error fetching GitHub repositories:', error);
+        }
+    };
+
 
     const showLoader = () => {
         const loaderElement = document.getElementById('loader');
@@ -136,14 +185,21 @@ document.addEventListener('DOMContentLoaded', function () {
     const displayRepos = (reposData) => {
         const reposElement = document.getElementById('user-repos');
         const repoList = document.createElement('ul');
-
+        repoList.classList.add('row','col-12')
         reposData.forEach((repo) => {
+            let topics = [];
+            if(repo.topics.length > 0){
+                repo.topics.forEach(t => topics.push(`<p class='btn btn-primary '>${t}</p>`))
+            }
             const repoItem = document.createElement('li');
+            repoItem.classList.add('list-unstyled','m-2','border','col-5')
             repoItem.innerHTML = `
-                <p><strong>Repository:</strong> <a href="${repo.html_url}" target="_blank">${repo.name}</a></p>
-                <p><strong>Description:</strong> ${repo.description}</p>
-                <p><strong>topics:</strong> ${repo.topics}</p>
+                <div>
+                <h3 class='p-2'> <a href="${repo.html_url}">${repo.name}</a></h3>
+                <p class='p-2'><strong> ${repo.description}</strong></p>
+                ${topics.join(' ')}
             `;
+            repoList.appendChild(repoItem);
             repoList.appendChild(repoItem);
             hideLoader();
         });
@@ -158,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (direction === 'prev' && currentReposPage > 1) {
             currentReposPage--;
         }
-        
+
         fetchAndDisplayRepos(username);
     };
 

@@ -1,0 +1,49 @@
+body {
+  font-size: 16px;
+  background-color: black;
+  color: white; 
+}
+
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 90px;
+  height: 90px;
+  animation: spin 1s linear infinite;
+  margin: auto;
+  margin-top: 20px;
+}
+
+.round-image {
+  border-radius: 50%;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  margin-bottom: 30px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.custom-button {
+  display: inline-block;
+  padding: 10px 20px;
+  color: #007bff;
+  background-color: #fff;
+  border: #007bff solid;
+  border-radius: 50px;
+  cursor: pointer;
+}
+
+.custom-button:hover {
+  background-color: #007bff;
+  color: #fff;
+}
